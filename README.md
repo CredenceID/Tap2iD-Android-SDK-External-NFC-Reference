@@ -1,4 +1,4 @@
-# Tap2iD Reader Reference for Android
+# Tap2iD Android SDK External NFC Reference
 
 A small Android app that verifies mobile IDs with the Tap2iD SDK through a contactless reader that
 is **not** Android's own NFC. It is two things:

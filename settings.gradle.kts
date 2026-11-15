@@ -26,6 +26,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Tap2iD-Reader-Reference"
+rootProject.name = "Tap2iD-Android-SDK-External-NFC-Reference"
 include(":app")
 include(":terminal-adapter")

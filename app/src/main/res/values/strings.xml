@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tap2iD Reader Reference</string>
+    <string name="app_name">Tap2iD External NFC</string>
     <string name="sdk_version">Tap2iD SDK %1$s</string>
 
     <string name="section_reader">1. Choose the reader and initialize</string>
