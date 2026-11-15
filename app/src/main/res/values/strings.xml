@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tap2iD Reader Reference</string>
+    <string name="sdk_version">Tap2iD SDK %1$s</string>
+
+    <string name="section_reader">1. Choose the reader and initialize</string>
+    <string name="reader_usb">USB contactless reader (ContactlessReader)</string>
+    <string name="reader_android_nfc">Android NFC (built in)</string>
+    <string name="reader_usb_attached">Plugged in: %1$s</string>
+    <string name="reader_usb_missing">No USB smart card reader is plugged in.</string>
+    <string name="reader_android_nfc_note">Uses this device\'s own NFC. No adapter is involved.</string>
+    <string name="reader_fixed_note">The SDK is initialized once per launch. Close the app to switch readers.</string>
+    <string name="initialize">Initialize SDK</string>
+    <string name="initializing">Initializing…</string>
+    <string name="initialized">Initialized. Profile: %1$s</string>
+    <string name="no_profile">none</string>
+    <string name="missing_api_key">Add tap2id.apiKey to local.properties and rebuild. The key is issued for one package name; set tap2id.applicationId to it.</string>
+
+    <string name="section_verify">2. Verify a mobile ID</string>
+    <string name="verify">Verify mobile ID</string>
+    <string name="cancel">Cancel</string>
+    <string name="verify_hint_usb">Hold the phone on the USB reader until the result shows.</string>
+    <string name="verify_hint_nfc">Hold the phone against the back of this device until the result shows.</string>
+    <string name="permissions_denied">Bluetooth permission is needed: the ID data travels over Bluetooth after the tap.</string>
+    <string name="cancelled">Cancelled.</string>
+
+    <string name="section_result">Result</string>
+    <string name="no_result">No verification yet.</string>
+    <string name="portrait">Portrait from the mobile ID</string>
+
+    <string name="section_log">Log</string>
+    <string name="copy_log">Copy log</string>
+    <string name="log_copied">Log copied</string>
+</resources>
