@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- USB class 11 is "smart card": every CCID reader, whoever made it. -->
+<resources>
+    <usb-device class="11" />
+</resources>
