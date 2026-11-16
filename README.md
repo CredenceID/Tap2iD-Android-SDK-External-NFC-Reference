@@ -9,8 +9,9 @@ is **not** Android's own NFC. It is two things:
   `ContactlessReader` interface. If you make a terminal with its own NFC SDK, your adapter has the
   same shape; this one shows where each piece goes.
 
-It goes with the integration guide *Connect your terminal with ContactlessReader*. The guide tells
-you what to build; this project is one that has been built.
+It goes with the integration guide,
+[*Connect your terminal with ContactlessReader*](docs/Tap2iD-Android-SDK-External-NFC-Integration-Guide.pdf)
+(PDF, in `docs/`). The guide tells you what to build; this project is one that has been built.
 
 ## What you need
 
