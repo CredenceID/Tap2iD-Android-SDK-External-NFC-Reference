@@ -255,3 +255,9 @@ app/                the application
   VerifierViewModel.kt           initialize, verify, cancel
   MainActivity.kt                the screen
 ```
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE), so you can copy the adapter into
+your own code. The Tap2iD SDK it depends on is not covered by this license; it is licensed separately
+by Credence ID.
