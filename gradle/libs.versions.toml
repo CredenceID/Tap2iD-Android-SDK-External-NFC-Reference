@@ -1,7 +1,6 @@
 [versions]
-# The first Tap2iD SDK version with ContactlessReader. This is a pre-release build read from the
-# local Maven repository; replace it with the released version Credence ID gives you.
-tap2idSdk = "2.2.2-CIE8774"
+# The first Tap2iD SDK version with ContactlessReader, from the Credence ID Maven repository.
+tap2idSdk = "2.3.0"
 
 agp = "8.13.2"
 # The Tap2iD SDK is built with Kotlin 2.3, so use Kotlin 2.2 or later.

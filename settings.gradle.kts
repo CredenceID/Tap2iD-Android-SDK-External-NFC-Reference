@@ -10,11 +10,6 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        // Only needed for a Tap2iD SDK build that Credence ID has not released yet.
-        // Remove this block once tap2idSdk in gradle/libs.versions.toml is a released version.
-        mavenLocal {
-            content { includeGroup("com.credenceid") }
-        }
         google()
         mavenCentral()
         // The Tap2iD SDK and the Credence ID libraries it depends on. No credentials are needed.

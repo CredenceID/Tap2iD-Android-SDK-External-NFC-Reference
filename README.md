@@ -37,9 +37,9 @@ This project was tested with an HID OMNIKEY 5427 CK on a Pixel 9 Pro XL running 
 
    The API key only works for the package name it was issued for, which is why both live here.
 
-2. In `gradle/libs.versions.toml`, set `tap2idSdk` to the SDK version Credence ID gave you. The SDK
-   and its libraries come from the Maven repository in `settings.gradle.kts`, which needs no
-   credentials.
+2. `gradle/libs.versions.toml` pins `tap2idSdk` to 2.3.0, the first version with
+   `ContactlessReader`. Change it there to use a later one. The SDK and its libraries come from the
+   Credence ID Maven repository in `settings.gradle.kts`, which needs no credentials.
 
 3. Build and install:
 
