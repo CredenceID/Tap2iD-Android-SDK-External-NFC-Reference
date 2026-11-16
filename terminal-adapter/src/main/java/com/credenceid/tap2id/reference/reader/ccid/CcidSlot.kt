@@ -91,9 +91,12 @@ internal class CcidSlot(
         sequence = (sequence + 1) and 0xFF
         transport.send(Ccid.command(type, slot, sent, parameter, data))
         while (true) {
-            val remainingMs = TimeUnit.NANOSECONDS.toMillis(deadline - nanoTime())
-            if (remainingMs <= 0) throw CcidException.Timeout("The reader did not reply in time")
-            val message = transport.receive(remainingMs.toInt()) ?: continue
+            val remainingNs = deadline - nanoTime()
+            if (remainingNs <= 0) throw CcidException.Timeout("The reader did not reply in time")
+            // Rounded up, not down: truncating 0.7 ms to 0 gave up before the deadline, which a
+            // host that wakes on time (Linux) shows and one that wakes late (Windows) hides.
+            val waitMs = TimeUnit.NANOSECONDS.toMillis(remainingNs + NANOS_PER_MS - 1)
+            val message = transport.receive(waitMs.toInt()) ?: continue
             val reply = CcidReply.parse(message)
             // A reply to a command that was given up on earlier can still arrive; it is not ours.
             if (reply.sequence != sent) continue
@@ -116,6 +119,7 @@ internal class CcidSlot(
         const val DEFAULT_MAX_MESSAGE_SIZE = 271
 
         private const val CONTROL_TIMEOUT_MS = 1_000
+        private val NANOS_PER_MS = TimeUnit.MILLISECONDS.toNanos(1)
         private const val POWER_ON_TIMEOUT_MS = 3_000
 
         // ICC_MUTE, XFR_PARITY_ERROR, XFR_OVERRUN: what a reader reports when the card moves away.

@@ -7,6 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 class CcidSlotTest {
     private val device = FakeCcidReaderDevice()
@@ -168,6 +169,35 @@ class CcidSlotTest {
     }
 
     @Test
+    fun `the timeout never fires before its deadline, however precise the clock`() {
+        // Arrange: a fake clock on which every read costs 0.3 ms, and a reader that stays silent
+        // for exactly the time it is asked to wait - the precise timing of a Linux host, where a
+        // timeout that gives up early shows (a Windows host wakes up late and hides it).
+        var nowNs = 0L
+        val waitsMs = mutableListOf<Int>()
+        val silentReader = object : CcidTransport {
+            override fun send(message: ByteArray) = Unit
+
+            override fun receive(timeoutMs: Int): ByteArray? {
+                waitsMs += timeoutMs
+                nowNs += TimeUnit.MILLISECONDS.toNanos(timeoutMs.toLong())
+                return null
+            }
+
+            override fun close() = Unit
+        }
+        val clockedSlot = CcidSlot(silentReader, nanoTime = { nowNs.also { nowNs += CLOCK_READ_COST_NS } })
+
+        // Act
+        assertThrows(CcidException.Timeout::class.java) { clockedSlot.transmit(SELECT, SHORT_TIMEOUT_MS) }
+
+        // Assert: the first clock read (at 0) set the deadline, so giving up before it is early.
+        val deadlineNs = TimeUnit.MILLISECONDS.toNanos(SHORT_TIMEOUT_MS.toLong())
+        assertTrue("gave up at $nowNs ns, before the deadline at $deadlineNs ns", nowNs >= deadlineNs)
+        assertTrue("asked the reader to wait 0 ms: $waitsMs", waitsMs.all { it > 0 })
+    }
+
+    @Test
     fun `a card that left the field is reported as lost`() {
         // Arrange
         device.cardPresent = false
@@ -211,6 +241,7 @@ class CcidSlotTest {
     private companion object {
         const val TIMEOUT_MS = 2_000
         const val SHORT_TIMEOUT_MS = 200
+        const val CLOCK_READ_COST_NS = 300_000L
 
         val SELECT = byteArrayOf(0x00, 0xA4.toByte(), 0x04, 0x00, 0x07, 0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x01, 0x00)
         val FILE_NOT_FOUND = byteArrayOf(0x6A, 0x82.toByte())
