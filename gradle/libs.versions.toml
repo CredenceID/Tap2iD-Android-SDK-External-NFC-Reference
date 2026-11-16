@@ -1,6 +1,8 @@
 [versions]
-# The first Tap2iD SDK version with ContactlessReader, from the Credence ID Maven repository.
-tap2idSdk = "2.3.0"
+# Tap2iD SDK, from the Credence ID Maven repository. One SDK build publishes three artifacts
+# with this same version, one per backend: tap2idSdk (PROD), tap2idSdk-midqa, tap2idSdk-uat.
+# The app picks the artifact from -PtargetEnvironment in app/build.gradle.kts.
+tap2idSdk = "2.2.2-SNAPSHOT"
 
 agp = "8.13.2"
 # The Tap2iD SDK is built with Kotlin 2.3, so use Kotlin 2.2 or later.
@@ -18,6 +20,9 @@ material = "1.13.0"
 junit = "4.13.2"
 
 [libraries]
+# The PROD coordinate. Only terminal-adapter uses this alias, compile-only: the three artifacts
+# share one API, and the app supplies the environment's artifact at runtime. The app does not
+# use it - it derives its coordinate from the target environment.
 tap2idSdk = { module = "com.credenceid:tap2idSdk", version.ref = "tap2idSdk" }
 
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }

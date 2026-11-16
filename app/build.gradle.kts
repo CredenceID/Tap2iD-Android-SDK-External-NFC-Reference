@@ -16,6 +16,33 @@ val localProperties =
 val tap2idApiKey: String = localProperties.getProperty("tap2id.apiKey", "")
 val tap2idApplicationId: String = localProperties.getProperty("tap2id.applicationId", "com.credenceid.tap2id.reference")
 
+// Tap2iD backend this build targets, chosen with -PtargetEnvironment=<PROD|MIDQA|UAT>.
+// Jenkins builds all three on every branch (see Jenkinsfile), so one run gives QA an APK for each.
+//
+// The SDK bakes its backend in when it is published, so the environment is selected by resolving
+// a per-environment artifactId. The map is the single source of truth for both the allowlist and
+// the artifactId, so an accepted environment can never resolve "com.credenceid:null".
+//
+// The default is UAT, so a build without the flag (a local one, a pipeline step that forgot it)
+// never aims at production. An unknown value fails here rather than being coerced, so a typo
+// cannot silently pick an environment.
+val sdkArtifactIdsByEnvironment = mapOf(
+    "PROD" to "tap2idSdk",
+    "MIDQA" to "tap2idSdk-midqa",
+    "UAT" to "tap2idSdk-uat",
+)
+val targetEnvironment = (project.findProperty("targetEnvironment")?.toString() ?: "UAT").uppercase()
+if (targetEnvironment !in sdkArtifactIdsByEnvironment) {
+    throw GradleException(
+        "Unknown -PtargetEnvironment='$targetEnvironment'. Expected one of ${sdkArtifactIdsByEnvironment.keys}.",
+    )
+}
+val tap2idSdkModule = "com.credenceid:${sdkArtifactIdsByEnvironment.getValue(targetEnvironment)}"
+val tap2idSdkVersion = libs.versions.tap2idSdk.get()
+
+// Logged at configuration time so an APK's backend is readable from the build log alone.
+logger.lifecycle("Tap2iD: targetEnvironment=$targetEnvironment -> SDK $tap2idSdkModule:$tap2idSdkVersion")
+
 android {
     namespace = "com.credenceid.tap2id.reference"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -25,10 +52,13 @@ android {
         applicationId = tap2idApplicationId
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
+        // CI passes -PversionCode=<Jenkins BUILD_NUMBER> so each build installs over the last one.
+        versionCode = project.findProperty("versionCode")?.toString()?.toIntOrNull() ?: 1
         versionName = "1.0.0"
 
         buildConfigField("String", "TAP2ID_API_KEY", "\"$tap2idApiKey\"")
+        // Lets the app (and QA, through it) tell which backend the build talks to.
+        buildConfigField("String", "TARGET_ENVIRONMENT", "\"$targetEnvironment\"")
 
         // The Tap2iD SDK ships its native code for 64-bit ARM only.
         ndk { abiFilters += "arm64-v8a" }
@@ -57,6 +87,18 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
+
+    // The environment is in the filename, PROD included, so a sideloaded APK says which backend
+    // it talks to, and the three APKs of one Jenkins run never share a name.
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                output.outputFileName =
+                    "Tap2iD-NFC-Reference_${variant.versionName}_${targetEnvironment.lowercase()}.apk"
+            }
+    }
 }
 
 kotlin {
@@ -68,7 +110,9 @@ kotlin {
 dependencies {
     // The three lines of the integration guide: the SDK, your adapter, and (for a terminal maker)
     // the terminal's NFC SDK. This adapter talks USB directly, so it has no third line.
-    implementation(libs.tap2idSdk)
+    // The artifactId carries the backend, so the coordinate comes from targetEnvironment above;
+    // the catalog still owns the version, which is the same for the three artifacts.
+    implementation("$tap2idSdkModule:$tap2idSdkVersion")
     implementation(project(":terminal-adapter"))
 
     implementation(libs.androidx.activity)
