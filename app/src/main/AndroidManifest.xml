@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Android 12+ lets the user grant only COARSE, so FINE must be requested together with it. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- Only for the "Android NFC" choice, which is there to compare against the USB reader. -->
