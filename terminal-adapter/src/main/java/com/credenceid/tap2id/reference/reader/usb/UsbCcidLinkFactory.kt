@@ -150,6 +150,6 @@ internal class UsbCcidLinkFactory(private val context: Context) : CcidLinkFactor
 
     private companion object {
         const val PERMISSION_WAIT_SECONDS = 60L
-        val CONTACTLESS_NAME = Regex("contactless|\\bCL\\b|CL ", RegexOption.IGNORE_CASE)
+        val CONTACTLESS_NAME = Regex("contactless|\\bCL\\b", RegexOption.IGNORE_CASE)
     }
 }

@@ -52,7 +52,7 @@ internal class UsbCcidTransport(
             var sent = 0
             while (sent < message.size) {
                 val count = connection.bulkTransfer(output, message, sent, message.size - sent, WRITE_TIMEOUT_MS)
-                if (count < 0) throw IOException(if (isAttached()) "Writing to the USB reader failed" else UNPLUGGED)
+                if (count <= 0) throw IOException(if (isAttached()) "Writing to the USB reader failed" else UNPLUGGED)
                 sent += count
             }
             // USB ends a transfer on a short packet, so a message that fills its last packet needs an empty one.

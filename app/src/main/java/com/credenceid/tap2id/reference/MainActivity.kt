@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: VerifierViewModel by viewModels()
+    private var renderedReader: Pair<ReaderChoice, Boolean>? = null
 
     private val permissionRequest =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -88,7 +89,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         // The activity given to the SDK is going away, so the verification that holds it must end.
-        if (isFinishing) viewModel.cancel()
+        // That includes a recreation for a configuration change the manifest does not handle.
+        viewModel.cancel()
         super.onDestroy()
     }
 
@@ -114,7 +116,13 @@ class MainActivity : AppCompatActivity() {
         binding.readerChoice.check(if (usb) R.id.readerUsb else R.id.readerAndroidNfc)
         binding.readerUsb.isEnabled = state.canChooseReader
         binding.readerAndroidNfc.isEnabled = state.canChooseReader
-        renderReader(state)
+        // The reader line looks up USB devices, so it is redrawn only when what it shows can change;
+        // plugging and unplugging redraw it through usbChanged.
+        val readerKey = state.readerChoice to state.canChooseReader
+        if (readerKey != renderedReader) {
+            renderedReader = readerKey
+            renderReader(state)
+        }
 
         binding.initialize.isEnabled = state.canChooseReader
         binding.sdkStatus.text =

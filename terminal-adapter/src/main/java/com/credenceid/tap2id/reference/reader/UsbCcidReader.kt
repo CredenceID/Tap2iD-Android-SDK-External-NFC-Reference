@@ -108,12 +108,15 @@ class UsbCcidReader internal constructor(
         listener: CardPresenceListener,
     ) {
         var present = false
-        while (!released.get()) {
+        // Each verification opens its own link, so a poller from an earlier one stops here even after
+        // the next attach has reset `released`.
+        fun current() = !released.get() && link === opened
+        while (current()) {
             try {
                 val inField =
                     io.withLock {
                         when {
-                            released.get() -> return
+                            !current() -> return
                             opened.slot.status() == IccStatus.ABSENT -> false
                             present -> true
                             else -> {
@@ -132,7 +135,7 @@ class UsbCcidReader internal constructor(
             } catch (gone: IOException) {
                 // Released: nothing to say. Otherwise the reader went away while waiting for a phone,
                 // and the SDK has to hear of it or the verification would wait until it is cancelled.
-                if (!released.get()) {
+                if (current()) {
                     Log.w(TAG, "Polling stopped: ${gone.message}")
                     listener.onReaderError(ReaderException(Reason.READER_DISCONNECTED, gone.message, gone))
                 }
